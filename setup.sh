@@ -14,17 +14,15 @@ echo -e "${BLUE}🚀 Multi-AI MCP Server Setup${NC}"
 echo "Connect Claude Code with Gemini, Grok-3, ChatGPT, and DeepSeek!"
 echo ""
 
-# Check Python version
+# Check requirements
 echo "📋 Checking requirements..."
-if ! command -v python3 &> /dev/null; then
-    echo -e "${RED}❌ Python 3 is required but not installed.${NC}"
+if ! command -v uv &> /dev/null; then
+    echo -e "${RED}❌ uv is required but not installed.${NC}"
+    echo "Install via: curl -LsSf https://astral.sh/uv/install.sh | sh"
     exit 1
 fi
+echo "✅ uv $(uv --version | awk '{print $2}') found"
 
-PYTHON_VERSION=$(python3 -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
-echo "✅ Python $PYTHON_VERSION found"
-
-# Check Claude Code
 if ! command -v claude &> /dev/null; then
     echo -e "${RED}❌ Claude Code CLI not found. Please install it first:${NC}"
     echo "npm install -g @anthropic-ai/claude-code"
@@ -50,10 +48,11 @@ if [ ! -f ~/.claude-mcp-servers/multi-ai-collab/credentials.json ]; then
     echo "📄 Created credentials.json from template"
 fi
 
-# Install Python dependencies
+# Create venv and install Python dependencies
 echo ""
 echo "📦 Installing Python dependencies..."
-pip3 install -r "$SCRIPT_DIR/requirements.txt" --quiet
+uv venv ~/.claude-mcp-servers/multi-ai-collab/.venv --quiet
+uv pip install -r "$SCRIPT_DIR/requirements.txt" -p ~/.claude-mcp-servers/multi-ai-collab/.venv --quiet
 
 # Function to prompt for API key and model
 prompt_for_ai() {
@@ -84,16 +83,19 @@ prompt_for_ai() {
             fi
             
             # Update credentials.json with new key and model
-            python3 -c "
-import json
-with open('$HOME/.claude-mcp-servers/multi-ai-collab/credentials.json', 'r') as f:
+            local service_lower
+            service_lower="$(echo "$service_name" | tr '[:upper:]' '[:lower:]')"
+            python3 - "$HOME/.claude-mcp-servers/multi-ai-collab/credentials.json" "$service_lower" "$new_key" "$model_choice" <<'PYEOF'
+import json, sys
+creds_path, service, api_key, model = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+with open(creds_path, 'r') as f:
     creds = json.load(f)
-creds['$(echo $service_name | tr '[:upper:]' '[:lower:]')']['api_key'] = '$new_key'
-creds['$(echo $service_name | tr '[:upper:]' '[:lower:]')']['model'] = '$model_choice'
-creds['$(echo $service_name | tr '[:upper:]' '[:lower:]')']['enabled'] = True
-with open('$HOME/.claude-mcp-servers/multi-ai-collab/credentials.json', 'w') as f:
+creds[service]['api_key'] = api_key
+creds[service]['model'] = model
+creds[service]['enabled'] = True
+with open(creds_path, 'w') as f:
     json.dump(creds, f, indent=2)
-"
+PYEOF
             echo -e "${GREEN}✅ $service_name configured with model: $model_choice${NC}"
             return 0
         else
@@ -154,8 +156,8 @@ echo "🔧 Configuring Claude Code..."
 # Remove any existing MCP configuration
 claude mcp remove multi-ai-collab 2>/dev/null || true
 
-# Add MCP server with global scope
-claude mcp add --scope user multi-ai-collab python3 ~/.claude-mcp-servers/multi-ai-collab/server.py
+# Add MCP server with global scope (using venv Python)
+claude mcp add --scope user multi-ai-collab ~/.claude-mcp-servers/multi-ai-collab/.venv/bin/python3 ~/.claude-mcp-servers/multi-ai-collab/server.py
 
 echo ""
 echo -e "${GREEN}✅ Setup complete!${NC}"
