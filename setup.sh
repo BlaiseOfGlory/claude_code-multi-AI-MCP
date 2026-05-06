@@ -170,6 +170,7 @@ for ai in "${configured_ais[@]}"; do
         "Gemini") echo "  • 🧠 Gemini (Google)" ;;
         "Grok-3") echo "  • 🚀 Grok-3 (xAI)" ;;
         "ChatGPT") echo "  • 💬 ChatGPT (OpenAI)" ;;
+        "DeepSeek") echo "  • 🔍 DeepSeek" ;;
     esac
 done
 
