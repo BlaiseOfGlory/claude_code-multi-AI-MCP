@@ -1,302 +1,137 @@
-[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/raiansar-claude-code-multi-ai-mcp-badge.png)](https://mseep.ai/app/raiansar-claude-code-multi-ai-mcp)
+# Multi-AI MCP Server
 
-# Talk to Multiple AIs Through Claude Code
+MCP server that gives Claude Code direct access to Gemini, Grok, and DeepSeek. Forked from [RaiAnsar/claude_code-multi-AI-MCP](https://github.com/RaiAnsar/claude_code-multi-AI-MCP) and rebuilt for a minimal, cost-aware tool surface.
 
-🚀 **Make Claude Code even smarter by connecting it to Google Gemini, Grok-3, ChatGPT, and DeepSeek!**
+## What Changed From Upstream
 
-**⚡ You can use any combination - just the ones you have API keys for!**
+v1.0.0 shipped 22 tools. Most were prompt templates (code_review, brainstorm, debug, architecture, think_deep — 5 variants per model) that an LLM doesn't need, plus multi-model orchestration tools (ask_all_ais, ai_debate, collaborative_solve, ai_consensus) that were broken — the "debate" never passed context between models, "collaborative_solve" never forwarded previous outputs, "consensus" just concatenated responses.
 
-Instead of switching between different AI websites, now you can simply ask Claude Code to get help from other AIs. Just say things like:
+v2.0.0 stripped that to **4 tools** and added system prompt support and Grok web search.
 
-> "Hey Claude, ask all the AIs to help debug this code"  
-> "Claude, get Grok's opinion on this architecture"  
-> "Have Gemini and ChatGPT debate this technical decision"
+v2.1.0 restructured as a UV tool — one command to install, one command to configure.
 
-## 🤖 Which AIs Are Included?
-
-- **🧠 Gemini** (Google) - Free API ✅
-- **🚀 Grok-3** (xAI) - Paid API ✅  
-- **💬 ChatGPT** (OpenAI) - Paid API ✅
-- **🔮 DeepSeek** - Paid API ✅
-
-**💡 You don't need all of them!** Start with just Gemini (it's free), then add others if you want.
-
-## 🚀 5-Minute Setup
-
-### What You Need
-- Claude Code installed
-- At least one API key (Gemini is free!)
-
-### Installation (Copy & Paste These 3 Commands)
+## Install
 
 ```bash
-# 1. Download the code
-git clone https://github.com/RaiAnsar/claude_code-multi-AI-MCP.git
-cd claude_code-multi-AI-MCP
+# Install the tool
+uv tool install multi-ai-collab
 
-# 2. Run the automatic setup
-chmod +x setup.sh
-./setup.sh
-
-# 3. That's it! Start using it right away
+# Interactive setup — prompts for API keys, registers with Claude Code
+multi-ai-collab --setup
 ```
 
-**During setup, you'll be asked for API keys:**
-- **Gemini** (Free): [Get key here](https://aistudio.google.com/apikey) 
-- **Grok** (Paid): [Get key here](https://console.x.ai/) 
-- **OpenAI** (Paid): [Get key here](https://platform.openai.com/api-keys)
-- **DeepSeek** (Paid): [Get key here](https://platform.deepseek.com/)
+Or run without installing:
 
-**💡 Pro tip:** Start with just Gemini (it's free), then add others later if you want.
-
-### Test It Works
-After setup, just ask Claude naturally:
-
-> "Hey Claude, ask Gemini what the capital of France is"
-
-If you see a response from Gemini, you're all set! 🎉
-
-## 💬 How to Use It (Super Simple!)
-
-Once installed, you just talk to Claude Code normally and ask it to use the other AIs. Here are real examples:
-
-### Ask Claude to Get Multiple Opinions
-> **You:** "Hey Claude, ask all the AIs what they think about using microservices vs monolith architecture"
-> 
-> **Claude:** I'll ask all available AIs for their perspectives on this...
-> 
-> *(Claude will use the `ask_all_ais` tool and show you all available AI responses)*
-
-### Get Help Debugging Code
-> **You:** "Claude, can you have Grok help debug this Python function that's running slowly?"
-> 
-> **Claude:** Let me ask Grok to analyze your code for performance issues...
-> 
-> *(Claude will use the `grok_debug` tool)*
-
-### Compare Different AI Opinions
-> **You:** "Have Gemini and ChatGPT debate whether to use React or Vue for my frontend"
-> 
-> **Claude:** I'll set up a debate between Gemini and ChatGPT on this topic...
-> 
-> *(Claude will use the `ai_debate` tool)*
-
-### Get Code Reviews from Multiple AIs
-> **You:** "Can you ask all the AIs to review this authentication function for security issues?"
-> 
-> **Claude:** I'll have all available AIs review your code...
-> 
-> *(Claude will use multiple code_review tools)*
-
-### Brainstorm Creative Solutions
-> **You:** "Ask Grok to brainstorm some creative features for my todo app"
-> 
-> **Claude:** Let me get Grok's creative input on your todo app...
-> 
-> *(Claude will use the `grok_brainstorm` tool)*
-
-### Get Architecture Advice
-> **You:** "Claude, have Gemini help design the database schema for my e-commerce site"
-> 
-> **Claude:** I'll ask Gemini to provide architecture recommendations...
-> 
-> *(Claude will use the `gemini_architecture` tool)*
-
-**🎉 The beauty is you don't need to remember any commands - just ask Claude naturally!**
-
-## 🔧 Configuration
-
-### API Keys & Models
-Edit `~/.claude-mcp-servers/multi-ai-collab/credentials.json`:
-
-```json
-{
-  "gemini": {
-    "api_key": "your-gemini-key",
-    "model": "gemini-2.0-flash",
-    "enabled": true
-  },
-  "grok": {
-    "api_key": "your-grok-key",
-    "model": "grok-3",
-    "enabled": true
-  },
-  "openai": {
-    "api_key": "your-openai-key",
-    "model": "gpt-4o",
-    "enabled": true
-  }
-}
-```
-
-**💡 Pro Tip**: You can mix and match any combination:
-- Only Gemini? Works perfectly!
-- Gemini + ChatGPT? Great for comparing Google vs OpenAI perspectives!
-- Any combination? Maximum AI collaboration power!
-
-### Getting API Keys
-- **Gemini**: [Google AI Studio](https://aistudio.google.com/apikey) (Free)
-- **Grok**: [xAI Console](https://console.x.ai/) (Paid)
-- **OpenAI**: [OpenAI Platform](https://platform.openai.com/api-keys) (Paid)
-- **DeepSeek**: [DeepSeek Platform](https://platform.deepseek.com/) (Paid)
-
-## 🌟 Why Have Multiple AIs?
-
-Think of it like having a team of experts with different personalities:
-
-- **🧠 Gemini** (Google): The technical expert
-  - Great for detailed explanations and accuracy
-  - Best for: Complex technical questions, code analysis
-  
-- **🚀 Grok** (xAI): The creative problem solver  
-  - Brings unique perspectives and humor
-  - Best for: Creative solutions, brainstorming, alternative approaches
-  
-- **💬 ChatGPT** (OpenAI): The balanced advisor
-  - Comprehensive analysis and practical examples
-  - Best for: General advice, code examples, balanced perspectives
-
-- **🔮 DeepSeek**: The reasoning specialist
-  - Strong in math, coding, and logical reasoning
-  - Best for: Complex algorithms, mathematical problems, code optimization
-
-**Real Benefits:**
-- **Better Decisions**: Get 2-3 opinions before making important choices
-- **Learn Faster**: See how different AIs approach the same problem  
-- **Catch Mistakes**: If one AI misses something, another might catch it
-- **Save Time**: Get multiple expert opinions without switching apps
-
-## 🔧 Partial Configurations
-
-**Don't have all the API keys? No problem!**
-
-- **Only Gemini?** You'll have access to Google's powerful free AI
-- **Only Grok?** Get xAI's unique perspective and humor  
-- **Only ChatGPT?** Use OpenAI's well-established models
-- **Only DeepSeek?** Get specialized reasoning and coding help
-- **Gemini + ChatGPT?** Compare Google vs OpenAI approaches!
-- **Grok + DeepSeek?** Creative thinking meets logical reasoning!
-- **Any 3 AIs?** Excellent multi-perspective collaboration!
-- **Have all 4?** Ultimate AI collaboration with maximum diversity!
-
-The server automatically adapts to your available AIs. Tools for unavailable AIs simply won't appear in Claude Code.
-
-**💰 Cost-Effective Options:**
-- Start with **free Gemini** to test the system
-- Add **ChatGPT** for proven OpenAI capabilities  
-- Include **Grok** for unique xAI insights
-- Add **DeepSeek** for specialized reasoning tasks
-
-## 🔒 Security Notes
-
-- **API keys stored locally**: All credentials are in `~/.claude-mcp-servers/multi-ai-collab/credentials.json`
-- **Never committed to git**: The `.gitignore` file excludes all credential files
-- **Optional AIs**: Only AIs with valid keys are loaded
-- **Graceful failures**: Failed AI connections don't break the server
-- **Input validation**: All requests are validated before processing
-
-⚠️ **Important**: Never share your `credentials.json` file or commit it to version control!
-
-## 🐛 Troubleshooting
-
-**MCP not showing up?**
 ```bash
-claude mcp list
-# Should show "multi-ai-collab"
+uvx multi-ai-collab --setup
 ```
 
-**AI not responding?**
+### Manual MCP Registration
+
+If `--setup` can't find the Claude Code CLI, register manually:
+
 ```bash
-mcp__multi-ai-collab__server_status
-# Check which AIs are enabled and working
+claude mcp add --scope user multi-ai-collab -- multi-ai-collab
 ```
 
-**Connection errors?**
-- Verify API keys in `credentials.json`
-- Check if the AI service is down
-- Ensure you have sufficient API credits
+Or with `uvx` (no install needed):
 
-**Reinstall:**
 ```bash
-claude mcp remove multi-ai-collab
-./setup.sh
+claude mcp add --scope user multi-ai-collab -- uvx multi-ai-collab
 ```
 
-## 📁 File Structure
+## Tools
 
-```
-~/.claude-mcp-servers/multi-ai-collab/
-├── server.py           # Main MCP server
-├── credentials.json    # API keys and configuration
-└── requirements.txt    # Python dependencies
-```
+Only enabled providers appear as tools. If you only have a Gemini key, you only see `ask_gemini` + `server_status`.
 
-## 🚀 Advanced Usage
+| Tool | Description |
+|------|-------------|
+| `server_status` | Check which models are configured and available |
+| `ask_gemini` | Query Google Gemini |
+| `ask_grok` | Query xAI Grok. Set `web_search=true` for live web results with citations. |
+| `ask_deepseek` | Query DeepSeek |
+| `ask_openai` | Query OpenAI (optional — configure if you have a key) |
 
-### Temperature Control for All AIs
+### Common Parameters (all `ask_*` tools)
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `prompt` | string | *required* | The question or prompt |
+| `system_prompt` | string | `""` | Set the model's role or constraints |
+| `temperature` | number | `0.7` | Response temperature (0.0-1.0) |
+
+### Grok-Only Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `web_search` | boolean | `false` | Enable live web search via xAI Responses API |
+| `allowed_domains` | string[] | `[]` | Restrict search to these domains (max 5) |
+| `excluded_domains` | string[] | `[]` | Exclude these domains from search (max 5) |
+
+`allowed_domains` and `excluded_domains` are mutually exclusive and only apply when `web_search=true`.
+
+## Models
+
+| Provider | Default Model | Billing |
+|----------|---------------|---------|
+| Gemini | gemini-2.0-flash | Free tier (rate-limited) |
+| Grok | grok-3 | Per-token |
+| DeepSeek | deepseek-chat | Per-token |
+| OpenAI | gpt-4o | Per-token (optional) |
+
+Models are configured during `--setup`. Change them later by editing `~/.config/multi-ai-collab/credentials.json`.
+
+## CLI
+
 ```bash
-# Creative writing with high temperature
-mcp__multi-ai-collab__ask_gemini
-  prompt: "Write a creative story about AI collaboration"
-  temperature: 0.9
-
-mcp__multi-ai-collab__ask_openai
-  prompt: "Write a creative story about AI collaboration" 
-  temperature: 0.9
-
-# Technical explanations with low temperature
-mcp__multi-ai-collab__ask_grok
-  prompt: "Explain how TCP/IP works"
-  temperature: 0.2
+multi-ai-collab            # Run MCP server (stdio transport)
+multi-ai-collab --setup    # Interactive configuration wizard
+multi-ai-collab --status   # Show configured providers
+multi-ai-collab --version  # Print version
 ```
 
-### Specialized Code Reviews by AI
-```bash
-# Gemini: Technical accuracy focus
-mcp__multi-ai-collab__gemini_code_review
-  code: "[your code]"
-  focus: "technical accuracy"
+## Usage Examples
 
-# ChatGPT: Best practices focus  
-mcp__multi-ai-collab__openai_code_review
-  code: "[your code]"
-  focus: "best practices"
+```
+# Basic query
+ask_gemini(prompt="Explain the CAP theorem")
 
-# Grok: Creative solutions focus
-mcp__multi-ai-collab__grok_code_review
-  code: "[your code]"
-  focus: "alternative approaches"
+# With system prompt for focused output
+ask_deepseek(prompt="Review this function", system_prompt="You are a security auditor. Focus only on injection vulnerabilities.")
+
+# Grok with web search
+ask_grok(prompt="What happened in tech news today?", web_search=true)
+
+# Grok web search restricted to specific domains
+ask_grok(prompt="Latest Claude Code features", web_search=true, allowed_domains=["docs.anthropic.com", "github.com"])
 ```
 
-### Multi-AI Workflows
-```bash
-# Step 1: Get all perspectives
-mcp__multi-ai-collab__ask_all_ais
-  prompt: "How should I structure a microservices architecture?"
+The caller (Claude) handles all orchestration — if you need multiple models' opinions, make parallel `ask_*` calls. If you need debate or consensus, write the synthesis prompt yourself. Claude is better at this than a server-side script.
 
-# Step 2: Have top AIs debate specifics
-mcp__multi-ai-collab__ai_debate
-  topic: "Event-driven vs REST for microservices communication"
-  ai1: "gemini"
-  ai2: "openai"
+## Cost Awareness
 
-# Step 3: Get Grok's creative alternative
-mcp__multi-ai-collab__ask_grok
-  prompt: "What's a creative alternative to traditional microservices?"
-```
+Gemini is rate-limited but free. Grok and DeepSeek are billed per token. Web search on Grok uses the Responses API which may have different pricing than Chat Completions. Don't fire these on every request — use them for cross-validation, conflict resolution, and cases where a second model's perspective adds real signal.
 
-## 🤝 Contributing
+## Configuration
 
-This is designed to be simple and extensible. To add new AI providers:
+Credentials are stored at `~/.config/multi-ai-collab/credentials.json` (override with `MULTI_AI_COLLAB_CONFIG` env var).
 
-1. Add credentials to `credentials.json`
-2. Add client initialization in `server.py`
-3. Test with the existing tools
+To reconfigure: `multi-ai-collab --setup` (preserves existing keys, lets you update or skip each provider).
 
-## 📜 License
+## Security
 
-MIT - Use freely!
+- Credentials stored locally in `~/.config/multi-ai-collab/credentials.json`
+- Never commit credentials to version control
+- Failed connections don't crash the server
+- No data is logged or stored by the MCP server
 
----
+## API Keys
 
-**🎉 Enjoy having multiple AI assistants working together with Claude Code!**
+- **Gemini** (free): [Google AI Studio](https://aistudio.google.com/apikey)
+- **Grok** (paid): [xAI Console](https://console.x.ai/)
+- **DeepSeek** (paid): [DeepSeek Platform](https://platform.deepseek.com/)
+- **OpenAI** (paid, optional): [OpenAI Platform](https://platform.openai.com/api-keys)
+
+## License
+
+MIT
