@@ -1,6 +1,6 @@
 # Multi-AI MCP Server
 
-MCP server that gives Claude Code direct access to Gemini, Grok, and DeepSeek. Forked from [RaiAnsar/claude_code-multi-AI-MCP](https://github.com/RaiAnsar/claude_code-multi-AI-MCP) and rebuilt for a minimal, cost-aware tool surface.
+MCP server that gives any MCP-compatible agent access to Gemini, Grok, and DeepSeek. Works with Claude Code, Cursor, Windsurf, Cline, and anything else that speaks the [Model Context Protocol](https://modelcontextprotocol.io). Forked from [RaiAnsar/claude_code-multi-AI-MCP](https://github.com/RaiAnsar/claude_code-multi-AI-MCP) and rebuilt for a minimal, cost-aware tool surface.
 
 ## What Changed From Upstream
 
@@ -10,25 +10,29 @@ v2.0.0 stripped that to **4 tools** and added system prompt support and Grok web
 
 v2.1.0 restructured as a UV tool — one command to install, one command to configure.
 
+v2.1.1 pinned dependencies with `uv.lock` for supply chain protection, made Claude Code registration optional during `--setup`, and added generic MCP client configuration docs (Cursor, Windsurf, Cline, etc.).
+
 ## Install
 
 ```bash
-# Install the tool
-uv tool install multi-ai-collab
+# Install directly from GitHub
+uv tool install git+https://github.com/BlaiseOfGlory/claude_code-multi-AI-MCP.git
 
-# Interactive setup — prompts for API keys, registers with Claude Code
+# Interactive setup — prompts for API keys, optionally registers with Claude Code
 multi-ai-collab --setup
 ```
 
 Or run without installing:
 
 ```bash
-uvx multi-ai-collab --setup
+uvx --from git+https://github.com/BlaiseOfGlory/claude_code-multi-AI-MCP.git multi-ai-collab --setup
 ```
 
-### Manual MCP Registration
+### MCP Client Configuration
 
-If `--setup` can't find the Claude Code CLI, register manually:
+The `--setup` wizard can auto-register with Claude Code. If you skipped that step or use a different agent, configure your MCP client manually. The server uses **stdio transport** — your client runs the command and communicates over stdin/stdout.
+
+#### Claude Code
 
 ```bash
 claude mcp add --scope user multi-ai-collab -- multi-ai-collab
@@ -37,8 +41,43 @@ claude mcp add --scope user multi-ai-collab -- multi-ai-collab
 Or with `uvx` (no install needed):
 
 ```bash
-claude mcp add --scope user multi-ai-collab -- uvx multi-ai-collab
+claude mcp add --scope user multi-ai-collab -- uvx --from git+https://github.com/BlaiseOfGlory/claude_code-multi-AI-MCP.git multi-ai-collab
 ```
+
+#### Cursor / Windsurf / Cline / Generic MCP Clients
+
+Add to your MCP configuration file (location varies by client):
+
+```json
+{
+  "mcpServers": {
+    "multi-ai-collab": {
+      "type": "stdio",
+      "command": "multi-ai-collab",
+      "args": []
+    }
+  }
+}
+```
+
+If you installed via `uvx` without a persistent install, use the full path:
+
+```json
+{
+  "mcpServers": {
+    "multi-ai-collab": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/BlaiseOfGlory/claude_code-multi-AI-MCP.git", "multi-ai-collab"]
+    }
+  }
+}
+```
+
+Common config file locations:
+- **Cursor:** `.cursor/mcp.json` in your project or `~/.cursor/mcp.json` globally
+- **Windsurf:** `~/.codeium/windsurf/mcp_config.json`
+- **Cline:** VS Code settings → Cline MCP Servers
 
 ## Tools
 
@@ -106,7 +145,7 @@ ask_grok(prompt="What happened in tech news today?", web_search=true)
 ask_grok(prompt="Latest Claude Code features", web_search=true, allowed_domains=["docs.anthropic.com", "github.com"])
 ```
 
-The caller (Claude) handles all orchestration — if you need multiple models' opinions, make parallel `ask_*` calls. If you need debate or consensus, write the synthesis prompt yourself. Claude is better at this than a server-side script.
+The caller handles all orchestration — if you need multiple models' opinions, make parallel `ask_*` calls. If you need debate or consensus, write the synthesis prompt yourself. Your agent is better at this than a server-side script.
 
 ## Cost Awareness
 

@@ -102,13 +102,19 @@ def prompt_provider(name: str, info: dict, existing: dict) -> dict | None:
 
 
 def register_with_claude():
+    resp = input("\n  Register as MCP server in Claude Code? [Y/n]: ").strip().lower()
+    if resp not in ("", "y", "yes"):
+        print("  Skipped Claude Code registration.")
+        print("  See README for manual MCP configuration instructions.")
+        return False
+
     if not shutil.which("claude"):
-        print("\n  Claude Code CLI not found — skipping MCP registration.")
+        print("  Claude Code CLI not found — skipping MCP registration.")
         print("  After installing Claude Code, run:")
         print("    claude mcp add --scope user multi-ai-collab -- multi-ai-collab")
         return False
 
-    print("\n  Registering with Claude Code...")
+    print("  Registering with Claude Code...")
     try:
         subprocess.run(
             ["claude", "mcp", "remove", "multi-ai-collab"],
@@ -174,14 +180,15 @@ def run_setup():
     print(f"\n{'=' * 50}")
     print(f"  Ready — {len(configured)} provider(s): {', '.join(configured)}")
     print()
-    print("  Available tools in Claude Code:")
+    print("  Available tools:")
     print("    server_status")
     for name in PROVIDERS:
         if credentials[name].get("enabled"):
             extra = " (supports web_search=true)" if name == "grok" else ""
             print(f"    ask_{name}{extra}")
     print()
-    print("  Try it: open Claude Code and ask it to query one of your providers.")
+    print("  If you skipped Claude Code registration, configure your MCP client")
+    print("  to run: multi-ai-collab (stdio transport)")
     print()
 
 
@@ -218,7 +225,7 @@ def run_status():
 def main():
     parser = argparse.ArgumentParser(
         prog="multi-ai-collab",
-        description="MCP server giving Claude Code access to multiple AI providers",
+        description="MCP server giving any MCP-compatible agent access to multiple AI providers",
     )
     parser.add_argument(
         "--setup", action="store_true",
