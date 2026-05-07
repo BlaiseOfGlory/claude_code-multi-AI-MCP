@@ -16,7 +16,7 @@ v2.1.1 pinned dependencies with `uv.lock` for supply chain protection, made Clau
 
 ```bash
 # Install directly from GitHub
-uv tool install git+https://github.com/BlaiseOfGlory/claude_code-multi-AI-MCP.git
+uv tool install git+https://github.com/BlaiseOfGlory/multi-ai-mcp.git
 
 # Interactive setup — prompts for API keys, optionally registers with Claude Code
 multi-ai-collab --setup
@@ -25,7 +25,7 @@ multi-ai-collab --setup
 Or run without installing:
 
 ```bash
-uvx --from git+https://github.com/BlaiseOfGlory/claude_code-multi-AI-MCP.git multi-ai-collab --setup
+uvx --from git+https://github.com/BlaiseOfGlory/multi-ai-mcp.git multi-ai-collab --setup
 ```
 
 ### MCP Client Configuration
@@ -41,7 +41,7 @@ claude mcp add --scope user multi-ai-collab -- multi-ai-collab
 Or with `uvx` (no install needed):
 
 ```bash
-claude mcp add --scope user multi-ai-collab -- uvx --from git+https://github.com/BlaiseOfGlory/claude_code-multi-AI-MCP.git multi-ai-collab
+claude mcp add --scope user multi-ai-collab -- uvx --from git+https://github.com/BlaiseOfGlory/multi-ai-mcp.git multi-ai-collab
 ```
 
 #### Cursor / Windsurf / Cline / Generic MCP Clients
@@ -68,7 +68,7 @@ If you installed via `uvx` without a persistent install, use the full path:
     "multi-ai-collab": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/BlaiseOfGlory/claude_code-multi-AI-MCP.git", "multi-ai-collab"]
+      "args": ["--from", "git+https://github.com/BlaiseOfGlory/multi-ai-mcp.git", "multi-ai-collab"]
     }
   }
 }
